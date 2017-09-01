@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>sullayBlog background</title>
+<script th:src="@{js/jquery-3.2.1.min.js}"></script>
+<script th:src="@{js/bootstrap.min.js}"></script>
+<link rel="stylesheet" th:href="@{css/bootstrap.min.css}"/>
+<script type="text/javascript">
+/*<![CDATA[*/
+	$(function(){
+	 	specialShow();
+	 	blogShow("all",0);
+	 	$("#addSpecialBtn").click(function(){
+	 		addSpecial();
+	 		setTimeout("specialShow()",300);
+	 	});
+	 	$("#addSpecail").keyup(function(event){
+	 		  if(event.keyCode ==13){
+	 		    $("#addSpecialBtn").trigger("click");
+	 		  }
+	 	});
+	 	$("#specialName").keyup(function(event){
+	 		  if(event.keyCode ==13){
+	 		    $("#addSpecialBtn").trigger("click");
+	 		  }
+	 	});
+	 	$("#pencil").click(function(){
+ 			$("#blogId").val("");
+ 			$("#blogTitle").val("");
+ 			$("#blogAuthor").val("");
+ 			$("#blogSpecialName").val("");
+ 			$("#blogLabel").val("");
+ 			$("#blogIntroduction").val("");
+ 			$("#blogHtml").val("");
+ 			$("#addOrUpdateBlogBtn").unbind("click");
+	 		$("#addOrUpdateBlogBtn").click(function(){
+	 			addBlog();
+	 			setTimeout("specialShow()",300);
+	 			setTimeout("blogShow('all',0)",300);
+	 	    });
+ 	});
+	 });
+	 function getBlogInfo(title){
+	 		$.ajax({
+	 			type:"get",
+	 			url:"blogInfo",
+	 			data:"title="+title,
+	 			success:function(result){
+	 				$("#blogId").val("");
+		 			$("#blogTitle").val("");
+		 			$("#blogAuthor").val("");
+		 			$("#blogSpecialName").val("");
+		 			$("#blogLabel").val("");
+		 			$("#blogIntroduction").val("");
+		 			$("#blogHtml").val("");
+	 				$("#blogId").val(result.extend.blogInfo.id);
+	 				$("#blogTitle").val(result.extend.blogInfo.title);
+	 				$("#blogAuthor").val(result.extend.blogInfo.author);
+	 				if (result.extend.blogInfo.special!=null) {
+	 					$("#blogSpecialName").val(result.extend.blogInfo.special.name);	
+	 				}
+	 				$("#blogLabel").val(result.extend.blogInfo.label);
+	 				$("#blogIntroduction").val(result.extend.blogInfo.introduction);
+	 				$("#blogHtml").val(result.extend.blogInfo.html);
+	 			}
+	 		});
+	 	}
+		function addBlog(){
+	 		$.ajax({
+	 			type:"post",
+	 			url:"blogInfo",
+	 			data:$("#blogInfoFrom").serializeArray()
+	 		});
+	 	}
+		function updateBlog(){
+	 		$.ajax({
+	 			type:"put",
+	 			url:"blogInfo",
+	 			data:$("#blogInfoFrom").serializeArray()
+	 		});
+	 	}
+	 	function addSpecial(){
+	 		$.ajax({
+	 			type:"post",
+	 			url:"special",
+	 			data:$("#addSpecialFrom").serializeArray()
+	 		});
+	 	}
+	 	function specialShow () {
+			$.ajax({
+				type:"get",
+				url:"specials",
+				success:function(result){
+					$("#specialsBtn").empty();
+					$("#specialsBtn").append($("<button></button>").attr("type","button").addClass("btn btn-default active").append("ALL").click(function(){
+						blogShow("all",0);
+						$("#specialsBtn .active").removeClass("active");
+						$(this).addClass("active");
+					}));
+					$.each(result.extend.specials, function() {
+						$("#specialsBtn").append($("<button></button>").attr("type","button").addClass("btn btn-default").append(this.name).click(function(){
+						blogShow($(this).text(),0);
+						$("#specialsBtn .active").removeClass("active");
+						$(this).addClass("active");
+					}));
+					});
+					$("#specialsBtn").append($("<button></button>").attr("type","button").addClass("btn btn-default").append("其他").click(function(){
+						blogShow("other",0);
+						$("#specialsBtn .active").removeClass("active");
+						$(this).addClass("active");
+					}));
+					$("#specialsBtn").append($("<button></button>").attr("data-target","#addSpecail").attr("data-toggle","modal").attr("type","button").addClass("btn btn-default").append($("<span></span>").addClass("glyphicon glyphicon-plus")));
+				}
+			});
+		}
+		function blogShow (specialName,page){
+			$.ajax({
+				type:"get",
+				url:"/blogInfos",
+				data:{
+					"specialName":specialName,
+					"page":page
+				},
+				success:function(result){
+					blog(result);
+					pageNav(result);
+				}
+			});
+		}
+		 function blog (result) {
+		 	$("#blogInfosBtn").empty();
+		 	$.each(result.extend.pageInfo.content, function() {
+		 		$("#blogInfosBtn")
+		 		.append($("<div></div>").addClass("btn-group btn-block")
+		 			.append($("<button></button>").attr("data-target","#addOrUpdateBlog").attr("data-toggle","modal").attr("type","button").addClass("btn btn-primary btn-lg")
+		 				.append(this.title).click(function(){
+		 					getBlogInfo($(this).text());
+				 			$("#addOrUpdateBlogBtn").unbind("click");
+					 		$("#addOrUpdateBlogBtn").click(function(){
+					 			updateBlog();
+					 			setTimeout("specialShow()",300);
+					 			setTimeout("blogShow('all',0)",300);
+					 	   });
+		 				})))
+		 	});
+		 }
+		function pageNav(result) {
+		 	var pages=parseInt(result.extend.pageInfo.totalPages);
+		 	var num=parseInt(result.extend.pageInfo.number);
+		 	$("#pageNav").empty();
+		 	$("#pageNav").append($("<li></li>").append($("<a></a>").append("首页")).click(function(){
+		 		blogShow(result.extend.specialName,0);
+		 	}));
+		 	for (var i = 0;i<pages; i++) {
+		 		if(i==num){
+		 			$("#pageNav").append($("<li></li>").append($("<a></a>").append(i+1)).addClass("active"));	
+		 		}else{
+		 			$("#pageNav").append($("<li></li>").append($("<a></a>").append(i+1)).click(function(){
+		 				blogShow(result.extend.specialName,parseInt($(this).text())-1);
+		 			}));
+		 		} 		
+		 	}
+		 	$("#pageNav").append($("<li></li>").append($("<a></a>").append("尾页")).click(function(){
+		 		blogShow(result.extend.specialName,pages-1);
+		 	}));
+		 }
+/*]]>*/
+</script>
+</head>
+<body>
+<div class="modal fade" id="addSpecail">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">sullay blog</h4>
+      </div>
+      <div class="modal-body">
+      	<form class="form-horizontal" id="addSpecialFrom" th:action="@{/special}">
+		  <div class="form-group">
+		    <label for="specialName" class="col-sm-2 control-label">新专题</label>
+		    <div class="col-sm-10">
+		      <input type="text" class="form-control" id="specialName" name="name" onkeydown="if(event.keyCode==13)return false;" placeholder="新专题"/>
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <div class="col-sm-offset-4 col-sm-10">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		        <button id="addSpecialBtn" type="button" class="btn btn-primary" data-dismiss="modal">保存</button>
+		    </div>
+		  </div>
+		</form>
+      </div>
+      <div class="modal-footer">
+      
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="addOrUpdateBlog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">sullay blog</h4>
+      </div>
+      <div class="modal-body">
+      	<form class="form-horizontal" id="blogInfoFrom" th:action="@{/blogInfo}">
+      	  <input type="text" class="hidden" name="id" id="blogId"/>
+		  <div class="form-group">
+		    <label for="title" class="col-sm-2 control-label">标题</label>
+		    <div class="col-sm-10">
+		      <input type="text" class="form-control" id="blogTitle" name="title" placeholder="标题"/>
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label for="author" class="col-sm-2 control-label">作者</label>
+		    <div class="col-sm-10">
+		      <input type="text" class="form-control" id="blogAuthor" name="author" placeholder="作者"/>
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label for="specialName" class="col-sm-2 control-label">专题</label>
+		    <div class="col-sm-10">
+		      <input type="text" class="form-control" id="blogSpecialName" name="special.name" placeholder="专题"/>
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label for="label" class="col-sm-2 control-label">标签</label>
+		    <div class="col-sm-10">
+		      <input type="text" class="form-control" id="blogLabel" name="label" placeholder="标签"/>
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label for="introduction" class="col-sm-2 control-label">简介</label>
+		    <div class="col-sm-10">
+		      <input type="text" class="form-control" id="blogIntroduction" name="introduction" placeholder="简介"/>
+		    </div>
+		  </div>	  
+		  <div class="form-group">
+		    <label for="html" class="col-sm-2 control-label">文本</label>
+		    <div class="col-sm-10">
+		      <textarea class="form-control" rows="5" id="blogHtml" name="html" placeholder="文本"></textarea>
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <div class="col-sm-offset-5 col-sm-10">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		        <button id="addOrUpdateBlogBtn" type="button" class="btn btn-primary" data-dismiss="modal">保存</button>
+		    </div>
+		  </div>
+		</form>
+      </div>
+      <div class="modal-footer">
+      
+      </div>
+    </div>
+  </div>
+</div>
+<nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#"><span class="glyphicon glyphicon-home"></span>Sullay</a>
+    </div>
+
+    <div class="collapse navbar-collapse navbar-right">
+      <ul class="nav navbar-nav">
+      	<li><a href="#"><span class="glyphicon glyphicon-book"></span>博客首页</a></li>
+        <li><a class="btn" data-toggle="modal" data-target="#addOrUpdateBlog" id="pencil"><span class="glyphicon glyphicon-pencil"></span></a></li>
+      </ul>
+      <form class="navbar-form navbar-right" th:action="@{/logout}" method="post">
+				<input type="submit" class="btn btn-default" value="注销" />
+      </form>
+    </div>
+  </div>
+</nav>
+<div class="container">
+	<div class="row">
+		<div class="col-sm-2">
+			<div class="btn-group-vertical" id="specialsBtn">
+			</div>
+		</div>
+		<div class="col-sm-10">
+			<div class="btn-group" id="blogInfosBtn">
+			</div>
+		</div>
+		<div class="col-sm-12 text-center">
+			<nav>
+			  <ul class="pagination" id="pageNav">
+			  </ul>
+			</nav>
+		</div>
+	</div>
+</div>
+</body>
+</html>

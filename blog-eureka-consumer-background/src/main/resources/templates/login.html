@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>sullayBlog</title>
+<script th:src="@{js/jquery-3.2.1.min.js}"></script>
+<script th:src="@{js/bootstrap.min.js}"></script>
+<link rel="stylesheet" th:href="@{css/bootstrap.min.css}"/>
+<script type="text/javascript">
+	$(function(){
+	 	$(document).keyup(function(event){
+	 		  if(event.keyCode ==13){
+	 		    $("#loginBtn").trigger("click");
+	 		  }
+	 		});
+	 });
+</script>
+</head>
+<body>
+	<div class="jumbotron">
+		<div class="container">
+		   <h1>sullay</h1>
+		   <p>博客后台登录</p>
+		</div>
+	</div>
+	<div class="container">
+		<div th:if="${param.error}" class="col-sm-offset-2 col-sm-10 text-danger">
+            	用户名或密码错
+    	</div>
+    	<div th:if="${param.logout}" class="col-sm-offset-2 col-sm-10 text-success">
+            	您已注销成功
+    	</div>
+		<form class="form-horizontal" th:action="@{/login}" method="post">
+		  <div class="form-group">
+		    <label for="username" class="col-sm-2 control-label">用户名：</label>
+		    <div class="col-sm-4">
+		      <input type="text" class="form-control" id="username" name="username" placeholder="请输入用户名"/>
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label for="inputPassword" class="col-sm-2 control-label">密码：</label>
+		    <div class="col-sm-4">
+		      <input type="password" class="form-control" id="inputPassword" name="password" placeholder="请输入密码"/>
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <div class="col-sm-offset-2 col-sm-10">
+		      <input id="loginBtn" type="submit" class="btn btn-default" value="登录"/>
+		    </div>
+		  </div>
+		</form>
+	</div>
+</body>
+</html>
