@@ -4,11 +4,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.sullay</groupId>
-	<artifactId>blog-eureka-consumer-background</artifactId>
+	<artifactId>blog-eureka-consumer-index</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>blog-eureka-consumer-background</name>
+	<name>blog-eureka-consumer-index</name>
 	<description>Demo project for Spring Boot</description>
 
 	<parent>
@@ -52,12 +52,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
-		
 		<dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-        
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-redis</artifactId>

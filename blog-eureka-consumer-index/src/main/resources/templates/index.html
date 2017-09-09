@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>sullayBlog</title>
+<script th:src="@{js/jquery-3.2.1.min.js}"></script>
+<script th:src="@{js/bootstrap.min.js}"></script>
+<link rel="stylesheet" th:href="@{css/bootstrap.min.css}"/>
+<link rel="stylesheet" th:href="@{css/bootstrap-theme.min.css}"/>
+<link rel="stylesheet" th:href="@{css/font-awesome.min.css}"/>
+<link rel="stylesheet" th:href="@{css/buttons.css}"/>
+<style type="text/css">
+	h1{
+		margin-top: 0px;
+	}
+	a{
+		word-break:break-all;
+	}
+	.sullay-a{
+		color: seagreen;
+		font-size: x-large;
+	}
+	.sullay-p{
+		margin-top: 18px;
+		font-size: medium;
+		line-height: 30px;
+	}
+	.panel-body span{
+		margin: 7px;
+	}
+</style>
+<script type="text/javascript">
+/*<![CDATA[*/
+	$(function () {
+		options={
+			animation :true,
+			html : false,
+			template: '<div class="tooltip" role="tooltip"><div  style="margin-bottom: 10px;" class="tooltip-arrow"></div><div class="tooltip-inner" style="margin-bottom: 10px;"></div></div>'
+		};
+	  $('[data-toggle="tooltip"]').tooltip(options);
+	  
+	  blogShow("all",0);
+	})
+	function blogShow (specialName,page){
+			$.ajax({
+				type:"get",
+				url:"/blogInfos",
+				data:{
+					"specialName":specialName,
+					"page":page
+				},
+				success:function(result){
+					blog(result);
+					pageNav(result);
+				}
+			});
+		}
+		function blog (result) {
+			 $("#index_body").empty();
+			 $.each(result.extend.pageInfo.content, function() {
+			 	 $("#index_body")
+				 	.append($("<div></div>").addClass("panel panel-default")
+				 		.append($("<div></div>").addClass("panel-body")
+						 	.append($("<h1></h1>").append($("<a></a>").attr("href","javascript:").addClass("sullay-a").append(this.title)))
+						 	.append($("<span></span>").addClass("text-muted").append($("<span></span>").addClass("glyphicon glyphicon-calendar")).append(getLocalTime(this.date)))
+						 	.append($("<span></span>").addClass("text-muted").append($("<span></span>").addClass("glyphicon glyphicon-user text-muted")).append(this.author))
+						 	.append($("<a></a>").attr("href","#").addClass("text-muted").append($("<span></span>").addClass("glyphicon glyphicon-folder-close")).append(this.special.name))
+						 	.append($("<p></p>").addClass("sullay-p").append(this.introduction))
+						 	.append($("<span></span>").addClass("text-muted").append($("<span></span>").addClass("glyphicon glyphicon-tags")).append(this.label))
+				 	));
+			 });
+		}
+		function pageNav(result) {
+		 	var pages=parseInt(result.extend.pageInfo.totalPages);
+		 	var num=parseInt(result.extend.pageInfo.number);
+		 	$("#pageNav").empty();
+		 	$("#pageNav").append($("<li></li>").append($("<a></a>").attr("href","javascript:").append("首页")).click(function(){
+		 		blogShow(result.extend.specialName,0);
+		 	}));
+		 	for (var i = 0;i<pages; i++) {
+		 		if(i==num){
+		 			$("#pageNav").append($("<li></li>").append($("<a></a>").append(i+1)).addClass("active"));	
+		 		}else if(i>=num-3&&i<=num+3){
+		 			$("#pageNav").append($("<li></li>").append($("<a></a>").attr("href","javascript:").append(i+1)).click(function(){
+		 				blogShow(result.extend.specialName,parseInt($(this).text())-1);
+		 			}));
+		 		} 		
+		 	}
+		 	$("#pageNav").append($("<li></li>").append($("<a></a>").attr("href","javascript:").append("尾页")).click(function(){
+		 		blogShow(result.extend.specialName,pages-1);
+		 	}));
+		 }
+		function getLocalTime(ns) {     
+			return new Date(parseInt(ns)).toLocaleString().replace(/:\d{1,2}$/,' ');
+    	}
+/*]]>*/
+</script>
+</head>
+<body>
+	<nav class="navbar navbar-default">
+	  <div class="container">
+	    <div class="navbar-header">
+	      <a class="navbar-brand" th:href="@{/}"><span class="glyphicon glyphicon-home"></span>Sullay|博客</a>
+	    </div>
+		
+	    <div class="collapse navbar-collapse">
+	      <ul class="nav navbar-nav">
+	      	<li><a href="#" class="btn">目录</a></li>
+	        <li><a href="#" class="btn">关于</a></li>
+	      </ul>
+	      <form class="navbar-form navbar-right">
+	      	<div class="input-group">
+		        <input type="text" class="form-control" placeholder="Search"/>
+		        <span class="input-group-btn">
+			      <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
+			    </span>
+		    </div>
+	      </form>
+	    </div>
+	  </div>
+	</nav>
+	<div class="container-fluid">
+	<div class="row">
+		<div class="col-sm-3 hidden-xs text-center">
+			<div class="panel panel-default">
+				<div class="panel-body">
+				    <img src="img/QQ.jpg" class="img-responsive"/>
+				    <h1>sullay</h1>
+				    <div style="margin-bottom: 10px;"><span class="text-muted"><i class="fa fa-map-marker"></i>中国 - 上海</span></div>
+				    <a href="https://github.com/sullay" class="button button-glow button-rounded button-raised button-primary button-pill">关注我</a>
+				</div>
+				<div class="panel-footer">
+					<a href="https://github.com/sullay" data-toggle="tooltip" data-placement="top" class="btn-default" title="github"><i class="fa fa-github fa-2x"></i></a>
+					<a href="https://git.oschina.net/sullay" data-toggle="tooltip" data-placement="top" class="col-sm-offset-1 btn-default" title="码云"><i class="fa fa-git fa-2x"></i></a>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-6 col-xs-12">
+			<div id="index_body">
+			</div>
+			<nav class="text-center">
+			  <ul class="pagination" id="pageNav">
+			  
+			  </ul>
+			</nav>
+		</div>
+		<div class="col-sm-3 hidden-xs">
+			
+		</div>
+	</div>
+</div>
+</body>
+</html>
