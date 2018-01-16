@@ -1,7 +1,5 @@
 package com.sullay.service;
 
-import javax.persistence.Transient;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,13 +16,11 @@ public class BlogInfoService {
 	public void create(BlogInfo blogInfo){
 		blogInfoRepository.save(blogInfo);
 	}
-	@Transient
-	public void detele(BlogInfo special){
-		blogInfoRepository.delete(special);
+	public void detele(BlogInfo blogInfo){
+		blogInfoRepository.delete(blogInfo);
 	}
-	@Transient
-	public void update(BlogInfo special){
-		blogInfoRepository.save(special);
+	public void update(BlogInfo blogInfo){
+		blogInfoRepository.save(blogInfo);
 	}
 	public BlogInfo find(String title){
 		return blogInfoRepository.findByTitle(title);

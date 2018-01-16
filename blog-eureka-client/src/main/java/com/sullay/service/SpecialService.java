@@ -1,8 +1,6 @@
 package com.sullay.service;
 import java.util.List;
 
-import javax.persistence.Transient;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,15 +11,12 @@ import com.sullay.repository.SpecialRepository;
 public class SpecialService {
 	@Autowired
 	SpecialRepository specialRepository;
-	@Transient
 	public void create(Special special){
 		specialRepository.save(special);
 	}
-	@Transient
 	public void detele(Special special){
 		specialRepository.delete(special);
 	}
-	@Transient
 	public void update(Special special){
 		specialRepository.save(special);
 	}
